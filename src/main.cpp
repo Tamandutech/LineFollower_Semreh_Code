@@ -49,8 +49,7 @@ char pass[] = "Renzo753159456";
 //   }
 // }
 
-void ler_sensores()
-{
+void ler_sensores(){
 
   uint16_t sArraychannels[sArray.getSensorCount()];
   erro_sensores = sArray.readLineWhite(sArraychannels) - 3500;
@@ -58,8 +57,7 @@ void ler_sensores()
  
 }
 
-void calcula_PID()
-{
+void calcula_PID(){
   
   P = erro_f;
   D = erro_f - erro_anterior;
@@ -217,69 +215,134 @@ bool ler_sens_lat()
 */
 
 void controle_com_mapeamento(int encVal){
-  if(encVal > 1800 && encVal < 8500){
-      calcula_PID_R();
-      controle_motores_R();
+  if(encVal > 1800 && encVal < 8500){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }
+  }
+  else if(encVal > 25000 && encVal < 29000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    else if(encVal > 25000 && encVal < 29000){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 29000 && encVal < 41500){
+    //curvas de 90º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 41500 && encVal < 45000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }else if(encVal > 41500 && encVal < 45000){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 45000 && encVal < 78000){
+    //curvas de 135º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 78000 && encVal < 95500){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }
-    else if(encVal > 78000 && encVal < 95500){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 95500 && encVal < 97500){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
 
-    }
-    else if(encVal > 97500 && encVal < 105000){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 97500 && encVal < 105000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }
-    else if(encVal > 109000 && encVal < 130000){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 105000 && encVal < 109000){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 109000 && encVal < 130000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }
-    else if(encVal > 132000 && encVal < 140000){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 130000 && encVal < 132000){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 132000 && encVal < 140000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }
-    else if(encVal > 163800 && encVal < 170000){
-      calcula_PID_R();
-      controle_motores_R();
+  }
+  else if(encVal > 140000 && encVal < 163800){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 163800 && encVal < 170000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }  
-    else if(encVal > 173500 && encVal < 182000){
-      calcula_PID_R();
-      controle_motores_R();
+  }  
+  else if(encVal > 170000 && encVal < 173500){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 173500 && encVal < 182000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }  
-    else if(encVal > 187000 && encVal < 194000){
-      calcula_PID_R();
-      controle_motores_R();
+  }  
+  else if(encVal > 182000 && encVal < 187000){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  }
+  else if(encVal > 187000 && encVal < 194000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }  
-    else if(encVal > 203500 && encVal < 240000){
-      calcula_PID_R();
-      controle_motores_R();
+  } 
+  else if(encVal > 194000 && encVal < 203500){
+    //curvas de ???º
+    Kp = 0.0438;
+    Kd = 0.099;
+    calcula_PID();
+    controle_motores(145,145);
+  } 
+  else if(encVal > 203500 && encVal < 240000){ //reta
+    calcula_PID_R();
+    controle_motores_R();
 
-    }  
-    else if(encVal > 266000){
-      digitalWrite(stby, LOW);
+  }  
+  else if(encVal > 266000){ //reta
+    digitalWrite(stby, LOW);
 
-    }
+  }
+  /*
     else{
       calcula_PID();
       controle_motores(140,140);
-    } 
+    } */
   }
 void controle_sem_mapeamento(){
 
@@ -311,7 +374,7 @@ void setup()
   Serial.begin(9600);
   
  
-
+  //pinagem
   pinMode(in_dir1, OUTPUT);
   pinMode(in_dir2, OUTPUT);
   pinMode(in_esq1, OUTPUT);
@@ -338,8 +401,7 @@ void setup()
   sArray.setSensorPins((const uint8_t[]){0, 1, 2, 3, 4, 5, 6, 7}, 8, (gpio_num_t)out_s_front, (gpio_num_t)in_s_front, (gpio_num_t)clk, (gpio_num_t)cs_s_front, 1350000, VSPI_HOST);
   sArray.setSamplesPerSensor(5);
 
-  for (uint16_t i = 0; i < 300; i++)
-  {
+  for (uint16_t i = 0; i < 300; i++){
     sArray.calibrate();
     delay(20);
   }
@@ -351,8 +413,7 @@ bool bly = false;
 
 int d = 0;
 
-void loop()
-{
+void loop(){
  
   digitalWrite(led, LOW);
   digitalWrite(buzzer, LOW);
