@@ -1,2 +1,2 @@
 # MCP3008
-Essa pasta contém a biblioteca utilizada para ler os dados que o conversor analógico/digital envia para o microcontrolador.
+ESP32 Arduino Library for MCP3008 Eight Channel Analog to Digital Converter
