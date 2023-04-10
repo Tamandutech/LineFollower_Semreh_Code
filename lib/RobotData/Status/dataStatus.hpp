@@ -14,7 +14,6 @@ class dataStatus
 public:
     dataStatus(std::string name = "dataVel");
 
-    // Contagem atual dos encoders
     DataAbstract<uint8_t> *robotState;
 
     DataAbstract<bool> *robotIsMapping;

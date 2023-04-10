@@ -20,7 +20,7 @@ public:
 private:
 
     int count = 0;
-    int erro_f = 0;
+    float erro_f = 0;
     QTRSensors sArray;
     void LerSensores();
     void Calibracao();

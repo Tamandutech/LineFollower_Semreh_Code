@@ -9,22 +9,19 @@
 
 #include "esp_log.h"
 
-class dataStatus
+class dataSensor
 {
 public:
-    dataSpeed(std::string name = "dataVel");
+    dataSensor(std::string name = "dataVel");
 
-    // Contagem atual dos encoders
-    DataAbstract<uint8_t> *robotState;
-
-    DataAbstract<bool> *robotIsMapping;
-
-    DataAbstract<bool> *encreading;
+    // Erro atual:
+    DataAbstract<float> *Erro;
+    
 
 private:
     std::string name;
     const char *tag = "RobotData";
 
-}
+};
 
 #endif

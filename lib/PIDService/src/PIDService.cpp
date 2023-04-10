@@ -43,22 +43,44 @@ void PIDService::ControleMotores(float PD, int vel_A, int vel_B){
     
     velesq = vel_A + PD;
     veldir = vel_B - PD;
-    if (velesq < 15)
+
+    if (velesq < 0)
     {
-        velesq = 15;
+        velesq = -1 * velesq;
+        if(velesq > 255){
+        velesq = 255;
+        }
+        gpio_set_level((gpio_num_t)in_dir1, 0);
+        gpio_set_level((gpio_num_t)in_dir2, 1);
+        AnalogWrite(PWM_A_PIN, velesq);
     }
     
-    if (veldir <15)
+    else if (veldir < 0)
     {
-        veldir = 15;
-    }
-    gpio_set_level((gpio_num_t)in_dir1, 1);
-    gpio_set_level((gpio_num_t)in_dir2, 0);
-    AnalogWrite(PWM_A_PIN, velesq);
+        if(veldir > 255){
+        veldir = 255;
+        }
+        veldir = -1 * veldir;
+        gpio_set_level((gpio_num_t)in_esq1, 1);
+        gpio_set_level((gpio_num_t)in_esq2, 0);
+        AnalogWrite(PWM_B_PIN, veldir);
+    }else{
+        if(veldir > 255){
+        veldir = 255;
+        }
+        if(velesq > 255){
+        velesq = 255;
+        }
 
-    gpio_set_level((gpio_num_t)in_esq1, 0);
-    gpio_set_level((gpio_num_t)in_esq2, 1);
-    AnalogWrite(PWM_B_PIN, veldir);
+        gpio_set_level((gpio_num_t)in_dir1, 1);
+        gpio_set_level((gpio_num_t)in_dir2, 0);
+        AnalogWrite(PWM_A_PIN, velesq);
+
+        gpio_set_level((gpio_num_t)in_esq1, 0);
+        gpio_set_level((gpio_num_t)in_esq2, 1);
+        AnalogWrite(PWM_B_PIN, veldir);
+
+    }
 }
 
 void PIDService::AnalogWrite(ledc_channel_t channel, int pwm){
