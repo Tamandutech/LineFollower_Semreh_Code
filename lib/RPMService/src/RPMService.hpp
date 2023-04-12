@@ -6,6 +6,7 @@
 #include "ESP32Encoder.h"
 #include "Injector/singleton.hpp"
 #include "IOs.hpp"
+#include "RobotData.h"
 
 using namespace cpp_freertos;
 

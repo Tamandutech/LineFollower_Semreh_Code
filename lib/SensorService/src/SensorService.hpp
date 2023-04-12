@@ -7,6 +7,7 @@
 #include "QTRSensors.h"
 #include "IOs.hpp"
 #include "RPMService.hpp"
+#include "RobotData.h"
 
 using namespace cpp_freertos;
 

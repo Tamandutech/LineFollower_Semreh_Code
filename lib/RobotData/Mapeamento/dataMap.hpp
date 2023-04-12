@@ -20,6 +20,14 @@ public:
     // Quantidade atual de marcas da lateral direita
     DataAbstract<uint16_t> *rightMarks;
 
+    // Ponto de parada (mesma medida do encoder)
+    DataAbstract<int32_t> *StopPoint;
+
+    // Incrementa a contagem de marcas da lateral esquerda
+    void leftPassedInc();
+    // Incrementa a contagem de marcas da lateral direita
+    void rightPassedInc();
+
 private:
     std::string name;
     const char *tag = "RobotData";

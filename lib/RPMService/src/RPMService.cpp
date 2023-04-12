@@ -12,11 +12,20 @@ RPMService::RPMService(std::string name, uint32_t stackDepth, UBaseType_t priori
 
 void RPMService::Run()
 {
+    TickType_t xLastTimeWake = xTaskGetTickCount();
+    
     for(;;)
     {
-        this->Suspend();
-        CalculateRPM();
-        vTaskDelay(0);
+        Robot::getInstance()->getVel()->EncMean->setData(CalculateRPM());
+
+        int enc = Robot::getInstance()->getVel()->EncMean->getData();
+        if(enc >= Robot::getInstance()->getMapeamento()->StopPoint->getData())
+        {
+            Robot::getInstance()->getStatus()->robotState->setData(CAR_STOPPED);
+        }
+        
+
+        vTaskDelayUntil(&xLastTimeWake, 10 / portTICK_PERIOD_MS);
     }
     
 }
@@ -29,7 +38,9 @@ int RPMService::CalculateRPM(){
     pul_prev_dir = encoder2.getCount();
 
     enc = (enc_esq_pul + enc_dir_pul) /2;
-    ESP_LOGI(GetName().c_str(), "Média encoders: %d", enc);
+    
     return enc;
 }
+
+
 

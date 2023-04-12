@@ -15,19 +15,23 @@ PIDService::PIDService(std::string name, uint32_t stackDepth, UBaseType_t priori
 void PIDService::Run()
 {
     TickType_t xLastTimeWake = xTaskGetTickCount();
+    auto get_sensor = Robot::getInstance()->getSensorArray();
+    auto get_PID = Robot::getInstance()->getPID();
     for(;;)
     {
-        CarState state;
-        state = CAR_IN_LINE;
-        PID = CalcularPID(Kp, Kd, erro_f);
+        TrackState state = (TrackState) Robot::getInstance()->getStatus()->robotState->getData();
+        Kp = get_PID->Kp(state)->getData();
+        Kd = get_PID->Kd(state)->getData();
+        erro = get_sensor->Erro->getData();
+        PID = CalcularPID(Kp, Kd, erro);
         if(state == CAR_STOPPED){
             gpio_set_level((gpio_num_t)stby, 0);
+            
         }else{
             ControleMotores(PID, velesq, veldir);
         }
         vTaskDelayUntil(&xLastTimeWake, 10 / portTICK_PERIOD_MS);
-    }
-    
+    }  
 }
 
 float PIDService::CalcularPID(float K_p, float K_d, float errof){
@@ -48,7 +52,7 @@ void PIDService::ControleMotores(float PD, int vel_A, int vel_B){
     {
         velesq = -1 * velesq;
         if(velesq > 255){
-        velesq = 255;
+            velesq = 255;
         }
         gpio_set_level((gpio_num_t)in_dir1, 0);
         gpio_set_level((gpio_num_t)in_dir2, 1);
@@ -58,7 +62,7 @@ void PIDService::ControleMotores(float PD, int vel_A, int vel_B){
     else if (veldir < 0)
     {
         if(veldir > 255){
-        veldir = 255;
+            veldir = 255;
         }
         veldir = -1 * veldir;
         gpio_set_level((gpio_num_t)in_esq1, 1);
@@ -66,10 +70,10 @@ void PIDService::ControleMotores(float PD, int vel_A, int vel_B){
         AnalogWrite(PWM_B_PIN, veldir);
     }else{
         if(veldir > 255){
-        veldir = 255;
+            veldir = 255;
         }
         if(velesq > 255){
-        velesq = 255;
+            velesq = 255;
         }
 
         gpio_set_level((gpio_num_t)in_dir1, 1);

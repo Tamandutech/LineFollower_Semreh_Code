@@ -1,14 +1,6 @@
 #ifndef DATA_ENUMS_HPP
 #define DATA_ENUMS_HPP
 
-enum CarState
-{
-    CAR_IN_CURVE,
-    CAR_IN_LINE,
-    CAR_STOPPED,
-    CAR_MAPPING,
-};
-
 enum CarSensor
 {
     CAR_SENSOR_LEFT,
@@ -22,6 +14,7 @@ enum TrackState
     CURVE,
     ZIGZAG,
     MAPPING,
+    CAR_STOPPED,
 };
 
 #endif

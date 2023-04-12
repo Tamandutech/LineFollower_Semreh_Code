@@ -28,16 +28,16 @@ Robot::Robot(std::string name)
     this->PID = new dataPID("PID");
     ESP_LOGD(name.c_str(), "PID (%p)", this->PID);
 
-    this->Mapeamento = new dataSensor(2, "Mapeamento");
+    this->Mapeamento = new dataMap("Mapeamento");
     ESP_LOGD(name.c_str(), "Mapeamento (%p)", this->Mapeamento);
 }
 
-dataSLatMarks *Robot::getVel()
+dataVel *Robot::getVel()
 {
     return this->velocidade;
 }
 
-dataSpeed *Robot::getStatus()
+dataStatus *Robot::getStatus()
 {
     return this->Status;
 }
@@ -57,7 +57,7 @@ dataPID *Robot::getPID()
     return this->PID;
 }
 
-dataPID *Robot::getMapeamento()
+dataMap *Robot::getMapeamento()
 {
     return this->Mapeamento;
 }

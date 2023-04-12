@@ -8,6 +8,7 @@
 #include "IOs.hpp"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
+#include "RobotData.h"
 
 using namespace cpp_freertos;
 
@@ -17,14 +18,6 @@ using namespace cpp_freertos;
 #define PWM_B_PIN               LEDC_CHANNEL_1 // Canal do LEDC utilizado
 #define LEDC_DUTY_RES           LEDC_TIMER_8_BIT // Resolução do PWM
 #define LEDC_FREQUENCY          5000 // Frequência em Hertz do sinal PWM
-
-enum CarState
-{
-    CAR_IN_CURVE,
-    CAR_IN_LINE,
-    CAR_STOPPED,
-    CAR_TUNING,
-};
 
 class PIDService : public Thread, public Singleton<PIDService>
 {
@@ -37,11 +30,10 @@ private:
 
 
     float I = 0, P = 0, D = 0, PID = 0;
-    float Ki = 0;
-    float Kp = 0.0421;//0.0392
-    float Kd = 0.0978; // 0.097
+    float Kp = 0;
+    float Kd = 0;
     float erro_anterior = 0;
-    float erro_f = 0;
+    float erro = 0;
     float velesq = 0, veldir = 0;
     void ControleMotores(float PD, int vel_A, int vel_B);
     void AnalogWrite(ledc_channel_t channel, int pwm);

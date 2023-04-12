@@ -8,11 +8,12 @@
 #include <atomic>
 #include <mutex>
 
-#include "dataVel.hpp"
-#include "dataStatus.hpp"
-#include "dataSensor.hpp"
-#include "dataPID.hpp"
-#include "dataMap.hpp"
+#include "Velocidade/dataVel.hpp"
+#include "Status/dataStatus.hpp"
+#include "Sensor/dataSensor.hpp"
+#include "PID/dataPID.hpp"
+#include "Mapeamento/dataMap.hpp"
+#include "dataEnums.hpp"
 
 #include "esp_log.h"
 

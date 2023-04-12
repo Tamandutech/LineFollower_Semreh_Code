@@ -6,17 +6,17 @@ dataPID::dataPID(std::string name)
     this->name = name;
     ESP_LOGD(tag, "Criando objeto: %s (%p)", name.c_str(), this);
 
-    Kp_line = new DataAbstract<float>("Kp_line", name);
-    Kd_line = new DataAbstract<float>("Kd_line", name);
+    Kp_line = new DataAbstract<float>("Kp_line", name, 0.0421);
+    Kd_line = new DataAbstract<float>("Kd_line", name, 0.0978);
 
-    Kp_curve = new DataAbstract<float>("Kp_curve", name);
-    Kd_curve = new DataAbstract<float>("Kd_curve", name);
+    Kp_curve = new DataAbstract<float>("Kp_curve", name, 0.0421);
+    Kd_curve = new DataAbstract<float>("Kd_curve", name, 0.0978);
 
-    Kp_zigzag = new DataAbstract<float>("Kp_zigzag", name);
-    Kd_zigzag = new DataAbstract<float>("Kd_zigzag", name);
+    Kp_zigzag = new DataAbstract<float>("Kp_zigzag", name, 0.0421);
+    Kd_zigzag = new DataAbstract<float>("Kd_zigzag", name, 0.0978);
 
-    Kp_mapping = new DataAbstract<float>("Kp_tunning", name);
-    Kd_mapping = new DataAbstract<float>("Kd_tunning", name);
+    Kp_mapping = new DataAbstract<float>("Kp_tunning", name, 0.0421);
+    Kd_mapping = new DataAbstract<float>("Kd_tunning", name, 0.0978);
 }
 
 DataAbstract<float> *dataPID::Kp(TrackState state)

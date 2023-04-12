@@ -20,16 +20,22 @@ SensorService::SensorService(std::string name, uint32_t stackDepth, UBaseType_t 
 void SensorService::Run()
 {
     TickType_t xLastTimeWake = xTaskGetTickCount();
+    auto get_Map = Robot::getInstance()->getMapeamento();
+    auto get_Vel = Robot::getInstance()->getVel();
     for(;;)
     {
         LerSensores();
         count++;
         if(count >= 200){
             if(LerLateral()){
-                RPMService::getInstance()->Resume();
+                get_Map->leftPassedInc();
+                int left_marks = get_Map->leftMarks->getData();
+                int enc = get_Vel->EncMean->getData();
+                ESP_LOGI(GetName().c_str(), "%dº - Média encoders: %d",left_marks, enc);
             }
             count = 0; 
         }
+
         vTaskDelayUntil(&xLastTimeWake, 10 / portTICK_PERIOD_MS);
 
     }
@@ -39,6 +45,7 @@ void SensorService::Run()
 void SensorService::LerSensores(){
     uint16_t sArraychannels[sArray.getSensorCount()];
     erro_f = -1 * sArray.readLineWhite(sArraychannels) - 3500;
+    Robot::getInstance()->getSensorArray()->Erro->setData(erro_f);
 }
 
 bool SensorService::LerLateral(){
