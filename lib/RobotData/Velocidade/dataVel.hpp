@@ -18,7 +18,10 @@ public:
     DataAbstract<int32_t> *EncMean;
 
     // Velocidade base:
-    DataAbstract<int8_t> *Base;
+    DataAbstract<int8_t> *Base_line;
+    DataAbstract<int8_t> *Base_curve;
+    DataAbstract<int8_t> *Base_zigzag;
+    DataAbstract<int8_t> *Base_mapping;
 
 
 
