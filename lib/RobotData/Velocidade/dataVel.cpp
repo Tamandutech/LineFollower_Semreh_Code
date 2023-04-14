@@ -13,3 +13,21 @@ dataVel::dataVel(std::string name)
     Base_zigzag = new DataAbstract<int8_t>("Base_zigzag", name, 0);
     Base_mapping = new DataAbstract<int8_t>("Base_mapping", name, 0);
 }
+
+DataAbstract<int8_t> *dataVel::VelBase(TrackState state)
+{
+    if(state == LINE){
+        return Base_line;
+    }
+    else if(state == CURVE){
+        return Base_curve;
+    }
+    else if(state == ZIGZAG){
+        return Base_zigzag;
+    }
+    else if(state == MAPPING){
+        return Base_mapping;
+    }
+    ESP_LOGE(tag, "Estado do Robô ou Objeto Vel. Base inválido para esse método: %s:%d para obter a Vel. Base, retornando valor null.", name.c_str(),state);
+    return nullptr;
+}

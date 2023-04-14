@@ -34,8 +34,10 @@ private:
     float Kd = 0;
     float erro_anterior = 0;
     float erro = 0;
-    float velesq = 0, veldir = 0;
-    void ControleMotores(float PD, int vel_A, int vel_B);
+    int8_t vel_base = 0;
+
+
+    void ControleMotores(float PD, int vel_i);
     void AnalogWrite(ledc_channel_t channel, int pwm);
     void InitPWM(gpio_num_t pin, ledc_channel_t channel);
     float CalcularPID(float K_p, float K_d, float errof);

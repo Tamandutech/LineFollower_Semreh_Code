@@ -17,18 +17,24 @@ void PIDService::Run()
     TickType_t xLastTimeWake = xTaskGetTickCount();
     auto get_sensor = Robot::getInstance()->getSensorArray();
     auto get_PID = Robot::getInstance()->getPID();
+    auto get_Status = Robot::getInstance()->getStatus();
+    auto get_Vel = Robot::getInstance()->getVel();
+
     for(;;)
     {
-        TrackState state = (TrackState) Robot::getInstance()->getStatus()->robotState->getData();
+        TrackState state = (TrackState) get_Status->robotState->getData();
         Kp = get_PID->Kp(state)->getData();
         Kd = get_PID->Kd(state)->getData();
         erro = get_sensor->Erro->getData();
+
         PID = CalcularPID(Kp, Kd, erro);
+
         if(state == CAR_STOPPED){
             gpio_set_level((gpio_num_t)stby, 0);
             
         }else{
-            ControleMotores(PID, velesq, veldir);
+            vel_base = get_Vel->VelBase(state)->getData();
+            ControleMotores(PID, vel_base);
         }
         vTaskDelayUntil(&xLastTimeWake, 10 / portTICK_PERIOD_MS);
     }  
@@ -43,10 +49,10 @@ float PIDService::CalcularPID(float K_p, float K_d, float errof){
     return PID_now;
 }
 
-void PIDService::ControleMotores(float PD, int vel_A, int vel_B){
+void PIDService::ControleMotores(float PD, int vel_i){
     
-    velesq = vel_A + PD;
-    veldir = vel_B - PD;
+    float velesq = vel_i + PD;
+    float veldir = vel_i - PD;
 
     if (velesq < 0)
     {

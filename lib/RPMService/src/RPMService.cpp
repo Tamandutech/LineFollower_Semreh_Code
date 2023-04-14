@@ -13,15 +13,18 @@ RPMService::RPMService(std::string name, uint32_t stackDepth, UBaseType_t priori
 void RPMService::Run()
 {
     TickType_t xLastTimeWake = xTaskGetTickCount();
+    auto get_Vel = Robot::getInstance()->getVel();
+    auto get_Map = Robot::getInstance()->getMapeamento();
+    auto get_Status = Robot::getInstance()->getStatus();
     
     for(;;)
     {
-        Robot::getInstance()->getVel()->EncMean->setData(CalculateRPM());
+        get_Vel->EncMean->setData(CalculateRPM());
 
-        int enc = Robot::getInstance()->getVel()->EncMean->getData();
-        if(enc >= Robot::getInstance()->getMapeamento()->StopPoint->getData())
+        int enc = get_Vel->EncMean->getData();
+        if(enc >= get_Map->StopPoint->getData())
         {
-            Robot::getInstance()->getStatus()->robotState->setData(CAR_STOPPED);
+            get_Status->robotState->setData(CAR_STOPPED);
         }
         
 
