@@ -14,14 +14,17 @@ SensorService::SensorService(std::string name, uint32_t stackDepth, UBaseType_t 
     adc1_config_channel_atten(s_lat_dir, ADC_ATTEN_11db);
     adc2_config_channel_atten(s_lat_esq, ADC_ATTEN_11db);
 
+    ESP_LOGE("Calibração", "Inicio.");
     Calibracao();
 }
 
 void SensorService::Run()
 {
+    ESP_LOGE("Sensor", "Inicio.");
     TickType_t xLastTimeWake = xTaskGetTickCount();
     auto get_Map = Robot::getInstance()->getMapeamento();
     auto get_Vel = Robot::getInstance()->getVel();
+    ESP_LOGE("Sensor", "Loop.");
     for(;;)
     {
         LerSensores();
@@ -70,4 +73,5 @@ void SensorService::Calibracao(){
         sArray.calibrate();
         vTaskDelay(20 / portTICK_PERIOD_MS);
     }
+    ESP_LOGE("Calibração", "Fim.");
 }

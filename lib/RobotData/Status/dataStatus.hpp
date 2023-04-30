@@ -6,6 +6,7 @@
 #include <string>
 
 #include "DataAbstract.hpp"
+#include "dataEnums.hpp"
 
 #include "esp_log.h"
 

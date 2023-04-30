@@ -35,6 +35,9 @@ private:
     float erro_anterior = 0;
     float erro = 0;
     int8_t vel_base = 0;
+    std::string tag;
+
+    int8_t cont_print = 0;
 
 
     void ControleMotores(float PD, int vel_i);

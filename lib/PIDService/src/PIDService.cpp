@@ -2,39 +2,43 @@
 
 PIDService::PIDService(std::string name, uint32_t stackDepth, UBaseType_t priority):Thread(name, stackDepth, priority)
 {
+    tag = name;
     esp_log_level_set(name.c_str(), ESP_LOG_INFO);
     gpio_set_direction((gpio_num_t)in_dir1, GPIO_MODE_OUTPUT);
     gpio_set_direction((gpio_num_t)in_dir2, GPIO_MODE_OUTPUT);
     gpio_set_direction((gpio_num_t)in_esq1, GPIO_MODE_OUTPUT);
     gpio_set_direction((gpio_num_t)in_esq2, GPIO_MODE_OUTPUT);
     gpio_set_direction((gpio_num_t)stby, GPIO_MODE_OUTPUT);
+    gpio_set_level((gpio_num_t)stby, 1);
     InitPWM((gpio_num_t)pwmA, PWM_A_PIN);
     InitPWM((gpio_num_t)pwmB, PWM_B_PIN);
 }
 
 void PIDService::Run()
 {
+    ESP_LOGE(tag.c_str(), "Inicio.");
     TickType_t xLastTimeWake = xTaskGetTickCount();
     auto get_sensor = Robot::getInstance()->getSensorArray();
     auto get_PID = Robot::getInstance()->getPID();
     auto get_Status = Robot::getInstance()->getStatus();
     auto get_Vel = Robot::getInstance()->getVel();
-
+    ESP_LOGE(tag.c_str(), "Loop.");
     for(;;)
     {
         TrackState state = (TrackState) get_Status->robotState->getData();
-        Kp = get_PID->Kp(state)->getData();
-        Kd = get_PID->Kd(state)->getData();
+        //ESP_LOGE("PID", "State: ");
         erro = get_sensor->Erro->getData();
-
-        PID = CalcularPID(Kp, Kd, erro);
 
         if(state == CAR_STOPPED){
             gpio_set_level((gpio_num_t)stby, 0);
             
         }else{
+            Kp = get_PID->Kp(state)->getData();
+            Kd = get_PID->Kd(state)->getData();
+
+            PID = CalcularPID(Kp, Kd, erro);
             vel_base = get_Vel->VelBase(state)->getData();
-            ControleMotores(PID, vel_base);
+            ControleMotores(PID, 150);
         }
         vTaskDelayUntil(&xLastTimeWake, 10 / portTICK_PERIOD_MS);
     }  
@@ -63,6 +67,8 @@ void PIDService::ControleMotores(float PD, int vel_i){
         gpio_set_level((gpio_num_t)in_dir1, 0);
         gpio_set_level((gpio_num_t)in_dir2, 1);
         AnalogWrite(PWM_A_PIN, velesq);
+       
+        
     }
     
     else if (veldir < 0)
@@ -95,6 +101,15 @@ void PIDService::ControleMotores(float PD, int vel_i){
 
 void PIDService::AnalogWrite(ledc_channel_t channel, int pwm){
     ledc_set_duty_and_update(LEDC_MODE,channel,pwm,0); // Atribui um novo duty para o PWM
+
+    if(cont_print >= 200)
+    {
+        ESP_LOGI(tag.c_str(), "Duty: %d",  ledc_get_duty(LEDC_MODE,PWM_A_PIN));
+        cont_print = 0;
+    }else
+    {
+        cont_print++;
+    }
 }
 
 void PIDService::InitPWM(gpio_num_t pin, ledc_channel_t channel){

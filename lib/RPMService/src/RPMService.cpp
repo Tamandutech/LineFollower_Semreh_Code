@@ -12,11 +12,12 @@ RPMService::RPMService(std::string name, uint32_t stackDepth, UBaseType_t priori
 
 void RPMService::Run()
 {
+    ESP_LOGE("RPM", "Inicio.");
     TickType_t xLastTimeWake = xTaskGetTickCount();
     auto get_Vel = Robot::getInstance()->getVel();
     auto get_Map = Robot::getInstance()->getMapeamento();
     auto get_Status = Robot::getInstance()->getStatus();
-    
+    ESP_LOGE("RPM", "Loop.");
     for(;;)
     {
         get_Vel->EncMean->setData(CalculateRPM());
@@ -25,6 +26,9 @@ void RPMService::Run()
         if(enc >= get_Map->StopPoint->getData())
         {
             get_Status->robotState->setData(CAR_STOPPED);
+        }
+        else{
+            get_Status->robotState->setData(LINE);
         }
         
 
