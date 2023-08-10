@@ -1,8 +1,11 @@
 #include <Arduino.h>
-#include <ESP32Servo.h>
 #include <ESP32Encoder.h>
 #include <variables.h>
 #include <QTRSensors.h>
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+#include <Adafruit_NeoPixel.h>
 
 int enc = 0;
 
@@ -10,28 +13,19 @@ ESP32Encoder encoder;
 ESP32Encoder encoder2;
 QTRSensors sArray;
 
-float Ki = 0;
-float Kp = 0.0421;//0.0392
-float Kd = 0.0978; // 0.097
-
-float KiR = 0;
-float KpR = 0.0168;//0.0392
-float KdR = 0.0839; // 0.097
-
 #define BLYNK_PRINT Serial
-
 /* Fill-in your Template ID (only if using Blynk.Cloud) */
 #define BLYNK_TEMPLATE_ID   "TMPLa2VAm_FV"
 
+// How many NeoPixels are attached to the Arduino?
+#define LED_COUNT 2
 
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <BlynkSimpleEsp32.h>
+// Declare our NeoPixel strip object:
+Adafruit_NeoPixel led_stip(LED_COUNT, led, NEO_GRB + NEO_KHZ800);
 
 // You should get Auth Token in the Blynk App.
 // Go to the Project Settings (nut icon).
 char auth[] = "k0uTh2IJ18o7CHMXs2DlYBY8jnuJl5To";
-
 // Your WiFi credentials.
 // Set password to "" for open networks.
 char ssid[] = "Renzzo";
@@ -49,6 +43,17 @@ char pass[] = "Renzo753159456";
 //   }
 // }
 
+
+float Ki = 0;
+float Kp = 0.0445;//0.04352
+float Kd = 0.340; // 0.0992
+
+float KiR = 0;
+float KpR = 0.035;//0.0392
+float KdR = 0.0899; // 0.097
+
+
+
 void ler_sensores()
 {
 
@@ -57,7 +62,6 @@ void ler_sensores()
   erro_f = -1 * erro_sensores;
  
 }
-
 void calcula_PID()
 {
   
@@ -66,11 +70,9 @@ void calcula_PID()
   PID = (Kp * P) + (Kd * D);
   erro_anterior = erro_f;
 }
-
-void controle_motores()
+void controle_motores(float vel_A, float vel_B)
 {
-  float vel_A = 168;
-  float vel_B = 168;
+  //Serial.println("controle motor");
   velesq = vel_A + PID;
   veldir = vel_B - PID;
   if (velesq < 15)
@@ -90,7 +92,6 @@ void controle_motores()
   digitalWrite(in_esq2, HIGH);
   analogWrite(pwmB, veldir);
 }
-
 void calcula_PID_R()
 {
   
@@ -99,11 +100,7 @@ void calcula_PID_R()
   PIDR = (KpR * PR) + (KdR * DR);
   erro_anterior = erro_f;
 }
-
-void controle_motores_R()
-{
-  float vel_AR = 255;
-  float vel_BR = 255;
+void controle_motores_R(float vel_AR, float vel_BR){
   velesqR = vel_AR + PIDR;
   veldirR = vel_BR- PIDR;
   if (velesqR < 15)
@@ -123,9 +120,6 @@ void controle_motores_R()
   digitalWrite(in_esq2, HIGH);
   analogWrite(pwmB, veldirR);
 }
-
-
-
 int calculate_rpm()
 {
 
@@ -145,35 +139,31 @@ int calculate_rpm()
   return enc;
   
 }
-bool ler_sens_lat()
+
+bool ler_sens_lat_esq()
 {
-  #define tempoDebounce 200
+  #define tempoDebounce 20
 
   bool estadoSLatEsq;
   static bool estadoSLatEsqAnt;
   static bool estadoRet = true;
   static unsigned long delaySenLat = 0;
   int x = 0;
-  int y = 0;
   if((millis() - delaySenLat)> tempoDebounce){
     x = analogRead(s_lat_esq);
-    y = analogRead(s_lat_dir);
-    // if(x < 100  && y <100){
-    //   estadoSLatEsq = false;     
-    // }
-    if(x < 150){
+
+    if(x < 200){
       estadoSLatEsq = true;     
     }
     else{
       estadoSLatEsq = false;
     }
-    
-    
-    
+
     if(estadoSLatEsq && (estadoSLatEsq != estadoSLatEsqAnt)){
       estadoRet = !estadoRet;
       delaySenLat = millis();
     }
+
     estadoSLatEsqAnt = estadoSLatEsq;
     
   }
@@ -181,30 +171,25 @@ bool ler_sens_lat()
 }
 
 
-/*bool ler_sens_lat_Dir()
+bool ler_sens_lat_dir()
 {
-  #define tempoDebounce2 200
+  #define tempoDebounce2 20
 
   bool estadoSLatDir;
   static bool estadoSLatDirAnt;
   static bool estadoRetDir = true;
   static unsigned long delaySenLatDir = 0;
-  int x = 0;
   int y = 0;
   if((millis() - delaySenLatDir)> tempoDebounce2){
     y = analogRead(s_lat_dir);
-    // if(x < 100  && y <100){
-    //   estadoSLatEsq = false;     
-    // }
-    if(y < 150){
+    
+    if(y < 200){
       estadoSLatDir = true;     
     }
     else{
       estadoSLatDir = false;
     }
-    
-    
-    
+
     if(estadoSLatDir && (estadoSLatDir != estadoSLatDirAnt)){
       estadoRetDir = !estadoRetDir;
       delaySenLatDir = millis();
@@ -215,12 +200,99 @@ bool ler_sens_lat()
   return estadoSLatDir;
 }
 
-*/
+void controle_sem_mapeamento(){
+
+        calcula_PID();
+        controle_motores(100,100);
+}
+
+void controle_com_mapeamento(int encVal){
+  digitalWrite(buzzer, LOW);
+  if(encVal > 0 && encVal < 24000){
+        calcula_PID();
+        controle_motores(135,135);
+      }
+      else if(encVal > 99000 && encVal < 103600){ //diagonal
+        digitalWrite(buzzer, HIGH);
+        calcula_PID_R();
+        controle_motores_R(245, 245);
+      }      else if(encVal > 109850 && encVal < 114600){ //antes reta media
+        digitalWrite(buzzer, HIGH);
+        calcula_PID_R();
+        controle_motores_R(245, 245);
+
+      }else if(encVal > 119600 && encVal < 137000){ //reta media
+        digitalWrite(buzzer, HIGH);
+        calcula_PID_R();
+        controle_motores_R(255, 255);
+      }
+      else if(encVal > 144700 && encVal < 149000){ //reta vertical
+        digitalWrite(buzzer, HIGH);
+
+        calcula_PID_R();
+        controle_motores_R(245, 245);
+      }  
+      else if(encVal > 178000 && encVal < 183300){ //reta 1 de 3
+          digitalWrite(buzzer, HIGH);
+
+          calcula_PID_R();
+          controle_motores_R(240, 240);
+      }
+      else if(encVal > 190000 && encVal < 195400){ //reta 2 de 3
+          digitalWrite(buzzer, HIGH);
+
+          calcula_PID_R();
+          controle_motores_R(240, 240);
+      }
+      else if(encVal > 202200 && encVal < 207900){ //reta 3 de 3
+        digitalWrite(buzzer, HIGH);
+
+        calcula_PID_R();
+        controle_motores_R(240, 240);
+      }
+      else if(encVal > 221000 && encVal < 251000){ //retona
+        digitalWrite(buzzer, HIGH);
+
+        calcula_PID_R();
+        controle_motores_R(255, 255);
+      } 
+      else if(encVal > 250800 && encVal < 280000){ //final
+        calcula_PID();
+        controle_motores(120,120);
+      }
+      else if(encVal > 275000){
+        digitalWrite(stby, LOW);
+      }
+      else{
+        controle_sem_mapeamento();
+      }
+  }
+
+int v = 0;
+
+void mapeamento(){
+  timer_in = millis();
+
+  digitalWrite(buzzer, LOW);
+          
+  if(ler_sens_lat_dir() == true){  
+        if(timer_in - timer_prev3 >= 10){
+          v = (v+1);
+          Serial.print("Marca ");
+          Serial.print(v);
+          Serial.print(": ");
+          Serial.println((encoder.getCount() + encoder2.getCount())/2);
+          //Serial.println(timer_in);
+
+        }
+      digitalWrite(buzzer, HIGH);
+       timer_prev3 = timer_in;
+     }
+    
+}
 void setup()
 {
-  Serial.begin(9600);
-  
- 
+  Serial.begin(115200);
 
   pinMode(in_dir1, OUTPUT);
   pinMode(in_dir2, OUTPUT);
@@ -232,6 +304,9 @@ void setup()
   pinMode(led, OUTPUT);
   pinMode(s_lat_esq, INPUT);
   pinMode(s_lat_dir, INPUT);
+  pinMode(buzzer, OUTPUT);
+
+  led_stip.begin();
 
   ESP32Encoder::useInternalWeakPullResistors = UP;
 
@@ -249,96 +324,32 @@ void setup()
 
   for (uint16_t i = 0; i < 300; i++)
   {
+    led_stip.setPixelColor(1, 0, 255, 0);
+    led_stip.show();
     sArray.calibrate();
     delay(20);
+    led_stip.setPixelColor(1, 0, 0, 0);
+    led_stip.show();
   }
 
   //Blynk.run();
   
 }
 bool bly = false;
-int v = 0;
-int d = 0;
+
+
+
 void loop()
 {
-  digitalWrite(led, LOW);
-  timer_in = millis();
-   
-
-          
-  if(ler_sens_lat() == true){  
-        if(timer_in - timer_prev3 >= 10){
-          v = (v+1);
-          Serial.print("Marca ");
-          Serial.print(v);
-          Serial.print((encoder.getCount() + encoder2.getCount())/2);
-          //Serial.println(timer_in);
-
-        }
-      digitalWrite(led, HIGH);  
-       timer_prev3 = timer_in;
-     }
-  /*if(ler_sens_lat_Dir() == true){  
-        if(timer_in - timer_prev4 >= 10){
-          d = (d+1);
-          if(d == 1){
-            enc = 0;
-            Serial.println("marca zero");
-           // Serial.print(calculate_rpm());
-          }
-          if(d == 5){
-           if(timer_in - timer_prev2 >= 800){
-            digitalWrite(stby,LOW);
-           }
-
-          }
-        }
-        timer_prev2 = timer_in;
-       timer_prev4 = timer_in;
-     }
-  
- */
-  
-    
-    if(timer_in - timer_prev >= 10){
-      ler_sensores();
-      float encVal = ((encoder.getCount() + encoder2.getCount())/2);
-
-    if(encVal < 18000 && encVal > 1800){
-      calcula_PID_R();
-      controle_motores_R();
-
-    }
-
-    else if(encVal > 51600 && encVal < 68000){
-      calcula_PID_R();
-      controle_motores_R();
-
-    }else if(encVal > 24000 && encVal < 29000){
-      calcula_PID_R();
-      controle_motores_R();
-
-    }
-    else if(encVal > 134000 && encVal < 136500){
-      calcula_PID_R();
-      controle_motores_R();
-
-    }
-    else if(encVal > 90000 && encVal < 100900){
-      calcula_PID_R();
-      controle_motores_R();
-
-    }
-    else if(encVal > 166000){
-      digitalWrite(stby, LOW);
-
-    }
-     else{
-      calcula_PID();
-      controle_motores();
-    }
-  timer_prev = timer_in;
-    }
-
- 
+  led_stip.setPixelColor(0, 255, 0, 0);
+  led_stip.show();
+  ler_sensores();
+  //int encVal = ((encoder.getCount() + encoder2.getCount())/2);
+  Serial.print(encoder.getCount());
+  Serial.print(",");
+  Serial.println(encoder2.getCount());
+  controle_sem_mapeamento();
+  digitalWrite(buzzer, ler_sens_lat_esq());
+  digitalWrite(buzzer, ler_sens_lat_dir());
 }
+
