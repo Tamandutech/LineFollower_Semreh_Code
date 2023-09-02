@@ -42,17 +42,23 @@ long int pul_prev_eq = 0;
 long int pul_prev_dir = 0;
 long int enc_esq_pul;
 long int enc_dir_pul;
+float rpm_d;
+float rpm_e;
 
 
 float I = 0, P = 0, D = 0, PID = 0;
 float IR = 0, PR = 0, DR = 0, PIDR = 0;
+float IG = 0, PG = 0, DG = 0, PIDG = 0;
+float IZIG = 0, PZIG = 0, DZIG = 0, PIDZIG = 0;
 
-float velesq = 0, veldir = 0, velesqR = 0, veldirR = 0;
+
+int velesq = 0, veldir = 0, velesqR = 0, veldirR = 0, velesqZIG = 0, veldirZIG = 0;
 float erro_sensores = 0, erro_anterior = 0;
 float erro_f = 0;
 int linha_l = 0;
 int timer_prev2 = 0;
 int timer_prev4 = 0;
 
+int encVal = 0;
 
 

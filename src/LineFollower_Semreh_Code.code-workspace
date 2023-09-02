@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "LineFollower_Semreh_Code",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"random": "cpp"
+		}
+	}
+}
